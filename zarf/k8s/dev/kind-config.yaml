@@ -36,3 +36,9 @@ nodes:
   # Tempo (tracing)
   - containerPort: 9411
     hostPort: 9411
+  # MinIO (API)
+  - containerPort: 9000
+    hostPort: 9000
+  # MinIO (console)
+  - containerPort: 9090
+    hostPort: 9091

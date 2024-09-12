@@ -23,7 +23,7 @@
 
 This is a front-end project built with **Golang** and **HTMX**, following a **Domain-Driven Design (DDD)** architecture. The project maintains a clear separation between the different layers of the application, ensuring scalability, testability, and ease of maintenance.
 
-Inspired by Bill Kennedy’s structure for Go projects, this repository implements best practices in Go development and architecture.
+Inspired by Bill Kennedy’s structure for Go projects, this repository implements best practices in Go development and architecture. [more info](https://github.com/ardanlabs/service)
 
 ## Features
 

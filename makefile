@@ -118,6 +118,7 @@ PROMETHEUS      := prom/prometheus:v2.54.0
 TEMPO           := grafana/tempo:2.5.0
 LOKI            := grafana/loki:3.1.0
 PROMTAIL        := grafana/promtail:3.1.0
+MINIO        	:= minio/minio:latest
 
 KIND_CLUSTER    := ardan-starter-cluster
 NAMESPACE       := sales-system
@@ -159,6 +160,7 @@ dev-docker:
 	docker pull $(TEMPO) & \
 	docker pull $(LOKI) & \
 	docker pull $(PROMTAIL) & \
+	docker pull $(MINIO) & \
 	wait;
 
 # ==============================================================================
@@ -207,6 +209,7 @@ dev-up:
 	kind load docker-image $(TEMPO) --name $(KIND_CLUSTER) & \
 	kind load docker-image $(LOKI) --name $(KIND_CLUSTER) & \
 	kind load docker-image $(PROMTAIL) --name $(KIND_CLUSTER) & \
+	kind load docker-image $(MINIO) --name $(KIND_CLUSTER) & \
 	wait;
 
 dev-down:
@@ -234,6 +237,7 @@ dev-apply:
 	kustomize build zarf/k8s/dev/tempo | kubectl apply -f -
 	kustomize build zarf/k8s/dev/loki | kubectl apply -f -
 	kustomize build zarf/k8s/dev/promtail | kubectl apply -f -
+	kustomize build zarf/k8s/dev/minio | kubectl apply -f -
 
 	kustomize build zarf/k8s/dev/database | kubectl apply -f -
 	kubectl rollout status --namespace=$(NAMESPACE) --watch --timeout=120s sts/database

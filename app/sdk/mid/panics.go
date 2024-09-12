@@ -1,0 +1,27 @@
+package mid
+
+import (
+	"context"
+	"runtime/debug"
+
+	"github.com/David-Kalashir/crs-front/app/sdk/errs"
+	"github.com/David-Kalashir/crs-front/app/sdk/metrics"
+)
+
+// Panics recovers from panics and converts the panic to an error so it is
+// reported in Metrics and handled in Errors.
+func Panics(ctx context.Context, next HandlerFunc) (resp Encoder) {
+
+	// Defer a function to recover from a panic and set the err return
+	// variable after the fact.
+	defer func() {
+		if rec := recover(); rec != nil {
+			trace := debug.Stack()
+			resp = errs.Newf(errs.InternalOnlyLog, "PANIC [%v] TRACE[%s]", rec, string(trace))
+
+			metrics.AddPanics(ctx)
+		}
+	}()
+
+	return next(ctx)
+}

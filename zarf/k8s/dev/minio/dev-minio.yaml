@@ -1,0 +1,78 @@
+# Create Namespace for MinIO
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sales-system
+---
+# MinIO ConfigMap for Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: minio-conf
+  namespace: sales-system
+data:
+  minio.env: |
+    MINIO_ACCESS_KEY: your-access-key
+    MINIO_SECRET_KEY: your-secret-key
+    MINIO_REGION: us-east-1
+---
+# MinIO Pod Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  namespace: sales-system
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      containers:
+        - name: minio
+          image: minio/minio:latest
+          args:
+            - minio
+            - server
+            - /data
+            - --console-address=:9090
+          ports:
+            - containerPort: 9000
+              name: api-port
+            - containerPort: 9090
+              name: console-port
+          envFrom:
+            - configMapRef:
+                name: minio-conf
+          volumeMounts:
+            - name: localvolume
+              mountPath: /data
+      volumes:
+        - name: localvolume
+          hostPath:
+            path: /mnt/disk1/data
+            type: DirectoryOrCreate
+---
+# MinIO Service to Expose the Pod
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  namespace: sales-system
+spec:
+  ports:
+    - name: api-port
+      port: 9000
+      targetPort: api-port
+    - name: console-port
+      port: 9090
+      targetPort: console-port
+  selector:
+    app: minio

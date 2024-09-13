@@ -13,7 +13,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ardanlabs/conf/v3"
 	"github.com/David-Kalashir/crs-front/api/cmd/services/sales/build/all"
 	"github.com/David-Kalashir/crs-front/api/cmd/services/sales/build/crud"
 	"github.com/David-Kalashir/crs-front/api/cmd/services/sales/build/reporting"
@@ -23,6 +22,7 @@ import (
 	"github.com/David-Kalashir/crs-front/business/sdk/sqldb"
 	"github.com/David-Kalashir/crs-front/foundation/logger"
 	"github.com/David-Kalashir/crs-front/foundation/otel"
+	"github.com/ardanlabs/conf/v3"
 )
 
 /*

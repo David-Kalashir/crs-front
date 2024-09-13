@@ -40,5 +40,5 @@ nodes:
   - containerPort: 9000
     hostPort: 9000
   # MinIO (console)
-  - containerPort: 9090
-    hostPort: 9091
+  - containerPort: 9001
+    hostPort: 9001

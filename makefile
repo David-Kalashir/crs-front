@@ -302,6 +302,9 @@ dev-logs-loki:
 dev-logs-promtail:
 	kubectl logs --namespace=$(NAMESPACE) -l app=promtail --all-containers=true -f --tail=100
 
+dev-logs-minio:
+	kubectl logs --namespace=$(NAMESPACE) -l app=minio --all-containers=true -f --tail=100
+
 # ------------------------------------------------------------------------------
 
 dev-services-delete:

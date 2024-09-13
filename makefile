@@ -118,7 +118,7 @@ PROMETHEUS      := prom/prometheus:v2.54.0
 TEMPO           := grafana/tempo:2.5.0
 LOKI            := grafana/loki:3.1.0
 PROMTAIL        := grafana/promtail:3.1.0
-MINIO        	:= minio/minio:latest
+MINIO        	:= minio/minio:RELEASE.2024-09-09T16-59-28Z.fips
 
 KIND_CLUSTER    := ardan-starter-cluster
 NAMESPACE       := sales-system

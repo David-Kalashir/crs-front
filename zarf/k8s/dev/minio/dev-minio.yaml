@@ -37,7 +37,7 @@ spec:
     spec:
       containers:
         - name: minio
-          image: minio/minio:latest
+          image: minio/minio:RELEASE.2024-09-09T16-59-28Z.fips
           args:
             - minio
             - server

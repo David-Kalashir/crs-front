@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"net/http"
 	"regexp"
+	"strings"
 
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
@@ -76,7 +77,7 @@ func (a *App) EnableCORS(origins []string) {
 	a.origins = origins
 
 	handler := func(ctx context.Context, r *http.Request) Encoder {
-		return cors{Status: "OK"}
+		return nil
 	}
 	handler = wrapMiddleware([]MidFunc{a.corsHandler}, handler)
 
@@ -87,8 +88,21 @@ func (a *App) corsHandler(webHandler HandlerFunc) HandlerFunc {
 	h := func(ctx context.Context, r *http.Request) Encoder {
 		w := GetWriter(ctx)
 
+		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
+		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Origin
+		//
+		// Limiting the possible Access-Control-Allow-Origin values to a set of
+		// allowed origins requires code on the server side to check the value of
+		// the Origin request header, compare that to a list of allowed origins, and
+		// then if the Origin value is in the list, set the
+		// Access-Control-Allow-Origin value to the same value as the Origin.
+
+		reqOrigin := r.Header.Get("Origin")
 		for _, origin := range a.origins {
-			w.Header().Add("Access-Control-Allow-Origin", origin)
+			if origin == "*" || origin == reqOrigin {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				break
+			}
 		}
 
 		w.Header().Set("Access-Control-Allow-Methods", "POST, PATCH, GET, OPTIONS, PUT, DELETE")
@@ -222,32 +236,42 @@ func (a *App) FileServerReact(static embed.FS, dir string) error {
 }
 
 // FileServer starts a file server based on the specified file system and
-// directory inside that file system.
+// serves files from the given directory inside that file system.
 func (a *App) FileServer(static embed.FS, dir string, notFoundHandler http.HandlerFunc) error {
+	// Create a subdirectory from the embedded file system
 	fSys, err := fs.Sub(static, dir)
 	if err != nil {
 		return fmt.Errorf("switching to static folder: %w", err)
 	}
 
+	// Create the file server handler
 	fileServer := http.FileServer(http.FS(fSys))
 
+	// Define the handler for static file requests
 	h := func(w http.ResponseWriter, r *http.Request) {
-		path := r.URL.Path[1:]
-		if path == "" {
-			path = "index.html"
+		// Trim the /static/ prefix from the URL path
+		path := strings.TrimPrefix(r.URL.Path, "/static/")
+
+		// Ensure the path doesn't end with a slash (to prevent directory issues)
+		if len(path) > 0 && path[len(path)-1] == '/' {
+			path = path[:len(path)-1]
 		}
 
+		// Try to open the file to ensure it exists
 		f, err := fSys.Open(path)
 		if err != nil {
+			// If file not found, call the custom 404 handler
 			notFoundHandler(w, r)
 			return
 		}
 		defer f.Close()
 
-		fileServer.ServeHTTP(w, r)
+		// Serve the file with the prefix stripped
+		http.StripPrefix("/static/", fileServer).ServeHTTP(w, r)
 	}
 
-	a.mux.HandleFunc("/", h)
+	// Handle all requests to /static/ with the custom handler
+	a.mux.HandleFunc("GET /static/", h)
 
 	return nil
 }

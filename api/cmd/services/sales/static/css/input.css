@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url(https://fonts.googleapis.com/css?family=Sanchez);
+/* classes inside @layer can be used with tailwind utilities. example: rtl:turn */
+@layer utilities {
+  /* to rotate images and icons when using rtl layout */
+  .turn {
+    transform: rotateY(180deg);
+  }
+}
+
+/* these two classes are used to hide scroll bars when needed */
+.hideScroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hideScroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Font Kalameh */
+@font-face {
+  font-family: Kalameh;
+  font-style: normal;
+  font-weight: 100;
+  src: url(./fonts/Kalameh-Thin.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: Kalameh;
+  font-style: normal;
+  font-weight: 400;
+  src: url(./fonts/Kalameh-Regular.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: Kalameh;
+  font-style: normal;
+  font-weight: 700;
+  src: url(./fonts/Kalameh-Bold.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: Kalameh;
+  font-style: normal;
+  font-weight: 900;
+  src: url(./fonts/Kalameh-Black.ttf) format("truetype");
+}
+
+body {
+  position: relative;
+  min-height: 100vh;
+  margin: 0;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+}
+
+@media screen and (max-width: 1600px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 1400px) {
+  html {
+    font-size: 12px;
+  }
+}
+
+.FirefoxScroll {
+  scrollbar-color: #a69f9b transparent;
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 0.25rem;
+  height: 0;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #a69f9b;
+  border-radius: 300px;
+}
+
+::-webkit-scrollbar-button:end:increment {
+  height: 1rem;
+  display: block;
+  background: transparent;
+}
+
+::-webkit-scrollbar-button:start:increment {
+  height: 1rem;
+  display: block;
+  background: transparent;
+}
+
+.rotating {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes pulse{
+  0%{
+    color: transparent;
+    background: rgba(229, 231, 235, 1);
+    border: none;
+    filter: brightness(0);;
+    background-image: none;
+    opacity: .06;
+  }
+
+  50%{
+    opacity: .3;
+  }
+
+  100%{
+    color: transparent;
+    background: rgba(229, 231, 235, 1);
+    border: none;
+    filter: brightness(0);;
+    background-image: none;
+    opacity: .06;
+  }
+}
+
+[data-skeleton="true"] {
+  animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) 5;
+  animation-fill-mode: none;  
+}
+
+input {
+  @apply outline-none focus:outline-none;
+}

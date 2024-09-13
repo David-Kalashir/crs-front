@@ -26,7 +26,7 @@ CMD ["./auth"]
 
 LABEL org.opencontainers.image.created="${BUILD_DATE}" \
       org.opencontainers.image.title="auth" \
-      org.opencontainers.image.authors="William Kennedy <bill@ardanlabs.com>" \
-      org.opencontainers.image.source="https://github.com/ardanlabs/service/tree/master/a/services/auth" \
+      org.opencontainers.image.authors="" \
+      org.opencontainers.image.source="https://github.com/David-Kalashir/crs-front" \
       org.opencontainers.image.revision="${BUILD_REF}" \
-      org.opencontainers.image.vendor="Ardan Labs"
+      org.opencontainers.image.vendor="crstrip"

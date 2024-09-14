@@ -1,0 +1,139 @@
+# Namespaces can help simplfy a few things with your configuration.
+#
+# If services are in the same namespace then the service name can be
+# configured as the host name to access those services.
+#
+# The way DNS works inside kubernetes is, the namespace and the rest of what
+# k8s needs is auto appended so you have the same configuration on all env
+# just the namespace differs.
+#
+# Another thing a namespace does is to bundle the resources used by an namespace.
+#
+# Another thing is network security if you implement network security with
+# network policies. It is very easy to restrict traffic between namespaces but
+# by default is allowed inside the same namespace.
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sales-system
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crsfront
+  namespace: sales-system
+
+spec:
+  selector:
+    matchLabels:
+      app: crsfront
+
+  template:
+    metadata:
+      labels:
+        app: crsfront
+
+    spec:
+      terminationGracePeriodSeconds: 60
+
+      containers:
+      - name: crsfront
+        image: crsfront-image
+
+        ports:
+        - name: crsfront
+          containerPort: 7000
+        - name: crsfront-debug
+          containerPort: 7010
+
+        readinessProbe: # readiness probes mark the service available to accept traffic.
+          httpGet:
+            path: /v1/readiness
+            port: 7000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 2
+
+        livenessProbe: # liveness probes mark the service alive or dead (to be restarted).
+          httpGet:
+            path: /v1/liveness
+            port: 7000
+          initialDelaySeconds: 2
+          periodSeconds: 5
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 2
+
+        env:
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+
+        - name: GOGC
+          value: "off"
+
+        - name: GOMEMLIMIT
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.memory
+
+        - name: CRSFRONT_DB_USER # here as an example for configuring a hosted db.
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: db_user
+              optional: true
+        - name: CRSFRONT_DB_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: db_password
+              optional: true
+        - name: CRSFRONT_DB_HOST_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: db_hostport
+              optional: true
+        - name: CRSFRONT_DB_DISABLE_TLS
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: db_disabletls
+              optional: true
+
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: KUBERNETES_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: KUBERNETES_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: KUBERNETES_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: crsfront-service
+  namespace: sales-system
+
+spec:
+  selector:
+    app: crsfront

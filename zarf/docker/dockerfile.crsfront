@@ -1,0 +1,40 @@
+# Build the Go Binary.
+FROM golang:1.23 AS build_crsfront
+ENV CGO_ENABLED=0
+ARG BUILD_REF
+
+# Create the service directory and the copy the module files first and then
+# download the dependencies. If this doesn't change, we won't need to do this
+# again in future builds.
+# RUN mkdir /service
+# COPY go.* /service/
+# WORKDIR /service
+# RUN go mod download
+
+# Copy the source code into the container.
+COPY . /service
+
+
+# Build the service binary.
+WORKDIR /service/api/cmd/services/crsfront
+RUN go build -ldflags "-X main.build=${BUILD_REF}"
+
+
+# Run the Go Binary in Alpine.
+FROM alpine:3.20
+ARG BUILD_DATE
+ARG BUILD_REF
+RUN addgroup -g 1000 -S crsfront && \
+    adduser -u 1000 -h /service -G crsfront -S crsfront
+
+COPY --from=build_crsfront --chown=crsfront:crsfront /service/api/cmd/services/crsfront/crsfront /service/crsfront
+WORKDIR /service
+USER crsfront
+CMD ["./crsfront"]
+
+LABEL org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.title="crsfront-api" \
+      org.opencontainers.image.authors="" \
+      org.opencontainers.image.source="https://github.com/David-Kalashir/crs-front" \
+      org.opencontainers.image.revision="${BUILD_REF}" \
+      org.opencontainers.image.vendor="crstrip"

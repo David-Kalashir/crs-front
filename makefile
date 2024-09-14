@@ -124,11 +124,13 @@ KIND_CLUSTER    := ardan-starter-cluster
 NAMESPACE       := sales-system
 SALES_APP       := sales
 AUTH_APP        := auth
+CRSFRONT_APP    := crsfront
 BASE_IMAGE_NAME := localhost/ardanlabs
 VERSION         := 0.0.1
 SALES_IMAGE     := $(BASE_IMAGE_NAME)/$(SALES_APP):$(VERSION)
 METRICS_IMAGE   := $(BASE_IMAGE_NAME)/metrics:$(VERSION)
 AUTH_IMAGE      := $(BASE_IMAGE_NAME)/$(AUTH_APP):$(VERSION)
+CRSFRONT_IMAGE  := $(BASE_IMAGE_NAME)/$(CRSFRONT_APP):$(VERSION)
 
 # VERSION       := "0.0.1-$(shell git rev-parse --short HEAD)"
 
@@ -166,7 +168,7 @@ dev-docker:
 # ==============================================================================
 # Building containers
 
-build: sales metrics auth
+build: sales metrics auth crsfront
 
 sales:
 	docker build \
@@ -188,6 +190,13 @@ auth:
 	docker build \
 		-f zarf/docker/dockerfile.auth \
 		-t $(AUTH_IMAGE) \
+		--build-arg BUILD_REF=$(VERSION) \
+		--build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+		.
+crsfront:
+	docker build \
+		-f zarf/docker/dockerfile.crsfront \
+		-t $(CRSFRONT_IMAGE) \
 		--build-arg BUILD_REF=$(VERSION) \
 		--build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
 		.
@@ -229,6 +238,7 @@ dev-load:
 	kind load docker-image $(SALES_IMAGE) --name $(KIND_CLUSTER) & \
 	kind load docker-image $(METRICS_IMAGE) --name $(KIND_CLUSTER) & \
 	kind load docker-image $(AUTH_IMAGE) --name $(KIND_CLUSTER) & \
+	kind load docker-image $(CRSFRONT_IMAGE) --name $(KIND_CLUSTER) & \
 	wait;
 
 dev-apply:
@@ -248,8 +258,12 @@ dev-apply:
 	kustomize build zarf/k8s/dev/sales | kubectl apply -f -
 	kubectl wait pods --namespace=$(NAMESPACE) --selector app=$(SALES_APP) --timeout=120s --for=condition=Ready
 
+	kustomize build zarf/k8s/dev/crsfront | kubectl apply -f -
+	kubectl wait pods --namespace=$(NAMESPACE) --selector app=$(CRSFRONT_APP) --timeout=120s --for=condition=Ready
+
 dev-restart:
 	kubectl rollout restart deployment $(AUTH_APP) --namespace=$(NAMESPACE)
+	kubectl rollout restart deployment $(CRSFRONT_APP) --namespace=$(NAMESPACE)
 	kubectl rollout restart deployment $(SALES_APP) --namespace=$(NAMESPACE)
 
 dev-update: build dev-load dev-restart

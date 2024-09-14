@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crsfront
+  namespace: sales-system
+
+spec:
+  replicas: 1
+
+  strategy:
+    type: Recreate
+
+  template:
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+
+      containers:
+      - name: crsfront
+        resources:
+          requests:
+            cpu: "250m"     # I need access to 25ms/100ms on one core
+            memory: "36Mi"  # Use this same value for limits
+          limits:
+            cpu: "250m"     # Execute instructions 25ms/100ms on one core
+            memory: "36Mi"  # Match the requests value

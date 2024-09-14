@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"embed"
 	"errors"
 	"expvar"
 	"fmt"
@@ -12,18 +13,25 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/David-Kalashir/crs-front/api/cmd/services/auth/build/all"
+	"github.com/David-Kalashir/crs-front/api/cmd/services/crsfront/build/all"
 	"github.com/David-Kalashir/crs-front/api/sdk/http/debug"
 	"github.com/David-Kalashir/crs-front/api/sdk/http/mux"
-	"github.com/David-Kalashir/crs-front/app/sdk/auth"
 	"github.com/David-Kalashir/crs-front/business/sdk/sqldb"
-	"github.com/David-Kalashir/crs-front/foundation/keystore"
 	"github.com/David-Kalashir/crs-front/foundation/logger"
 	"github.com/David-Kalashir/crs-front/foundation/otel"
 	"github.com/ardanlabs/conf/v3"
 )
 
+/*
+	Need to figure out timeouts for http service.
+*/
+
+//go:embed all:static
+var static embed.FS
+
 var build = "develop"
+
+//var routes = "all" // go build -ldflags "-X main.routes=crud"
 
 func main() {
 	var log *logger.Logger
@@ -38,7 +46,7 @@ func main() {
 		return otel.GetTraceID(ctx)
 	}
 
-	log = logger.NewWithEvents(os.Stdout, logger.LevelInfo, "AUTH", traceIDFn, events)
+	log = logger.NewWithEvents(os.Stdout, logger.LevelInfo, "CRSFRONT", traceIDFn, events)
 
 	// -------------------------------------------------------------------------
 
@@ -67,15 +75,9 @@ func run(ctx context.Context, log *logger.Logger) error {
 			WriteTimeout       time.Duration `conf:"default:10s"`
 			IdleTimeout        time.Duration `conf:"default:120s"`
 			ShutdownTimeout    time.Duration `conf:"default:20s"`
-			APIHost            string        `conf:"default:0.0.0.0:6000"`
-			DebugHost          string        `conf:"default:0.0.0.0:6010"`
+			APIHost            string        `conf:"default:0.0.0.0:7000"`
+			DebugHost          string        `conf:"default:0.0.0.0:7010"`
 			CORSAllowedOrigins []string      `conf:"default:*"`
-		}
-		Auth struct {
-			KeysEnvVar string
-			KeysFolder string `conf:"default:zarf/keys/"`
-			ActiveKID  string `conf:"default:54bb2165-71e1-41a6-af3e-7da4a0e1e2c1"`
-			Issuer     string `conf:"default:service project"`
 		}
 		DB struct {
 			User         string `conf:"default:postgres"`
@@ -88,17 +90,20 @@ func run(ctx context.Context, log *logger.Logger) error {
 		}
 		Tempo struct {
 			Host        string  `conf:"default:tempo:4317"`
-			ServiceName string  `conf:"default:auth"`
+			ServiceName string  `conf:"default:crsfront"`
 			Probability float64 `conf:"default:0.05"`
+			// Shouldn't use a high Probability value in non-developer systems.
+			// 0.05 should be enough for most systems. Some might want to have
+			// this even lower.
 		}
 	}{
 		Version: conf.Version{
 			Build: build,
-			Desc:  "Auth",
+			Desc:  "crsfront",
 		},
 	}
 
-	const prefix = "AUTH"
+	const prefix = "CRSFRONT"
 	help, err := conf.Parse(prefix, &cfg)
 	if err != nil {
 		if errors.Is(err, conf.ErrHelpWanted) {
@@ -143,44 +148,6 @@ func run(ctx context.Context, log *logger.Logger) error {
 	}
 
 	defer db.Close()
-
-	// -------------------------------------------------------------------------
-	// Initialize authentication support
-
-	log.Info(ctx, "startup", "status", "initializing authentication support")
-
-	// Check the enviornment first to see if a key is being provided. Then
-	// load any private keys files from disk. We can assume some system like
-	// Vault has created these files already. How that happens is not our
-	// concern.
-
-	ks := keystore.New()
-
-	n1, err := ks.LoadByEnv(cfg.Auth.KeysEnvVar)
-	if err != nil {
-		return fmt.Errorf("loading keys by env: %w", err)
-	}
-
-	n2, err := ks.LoadByFileSystem(os.DirFS(cfg.Auth.KeysFolder))
-	if err != nil {
-		return fmt.Errorf("loading keys by fs: %w", err)
-	}
-
-	if n1+n2 == 0 {
-		return fmt.Errorf("no keys exist: %w", err)
-	}
-
-	authCfg := auth.Config{
-		Log:       log,
-		DB:        db,
-		KeyLookup: ks,
-		Issuer:    cfg.Auth.Issuer,
-	}
-
-	ath, err := auth.New(authCfg)
-	if err != nil {
-		return fmt.Errorf("constructing auth: %w", err)
-	}
 
 	// -------------------------------------------------------------------------
 	// Start Tracing Support
@@ -228,14 +195,17 @@ func run(ctx context.Context, log *logger.Logger) error {
 		Log:    log,
 		DB:     db,
 		Tracer: tracer,
-		AuthConfig: mux.AuthConfig{
-			Auth: ath,
-		},
 	}
+
+	webAPI := mux.WebAPI(cfgMux,
+		buildRoutes(),
+		mux.WithCORS(cfg.Web.CORSAllowedOrigins),
+		mux.WithFileServer(static, "static"),
+	)
 
 	api := http.Server{
 		Addr:         cfg.Web.APIHost,
-		Handler:      mux.WebAPI(cfgMux, all.Routes(), mux.WithCORS(cfg.Web.CORSAllowedOrigins)),
+		Handler:      webAPI,
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 		IdleTimeout:  cfg.Web.IdleTimeout,
@@ -271,4 +241,20 @@ func run(ctx context.Context, log *logger.Logger) error {
 	}
 
 	return nil
+}
+
+func buildRoutes() mux.RouteAdder {
+
+	// The idea here is that we can build different versions of the binary
+	// with different sets of exposed web APIs. By default we build a single
+	// instance with all the web APIs.
+	//
+	// Here is the scenario. It would be nice to build two binaries, one for the
+	// transactional APIs (CRUD) and one for the reporting APIs. This would allow
+	// the system to run two instances of the database. One instance tuned for the
+	// transactional database calls and the other tuned for the reporting calls.
+	// Tuning meaning indexing and memory requirements. The two databases can be
+	// kept in sync with replication.
+
+	return all.Routes()
 }

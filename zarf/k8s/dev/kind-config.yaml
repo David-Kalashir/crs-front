@@ -42,3 +42,9 @@ nodes:
   # MinIO (console)
   - containerPort: 9001
     hostPort: 9001
+  # CrsFront
+  - containerPort: 7000
+    hostPort: 7000
+  # CrsFront debug
+  - containerPort: 7010
+    hostPort: 7010

@@ -3,6 +3,7 @@ module github.com/David-Kalashir/crs-front
 go 1.23.0
 
 require (
+	github.com/a-h/templ v0.2.778
 	github.com/ardanlabs/conf/v3 v3.1.8
 	github.com/ardanlabs/darwin/v3 v3.3.1
 	github.com/arl/statsviz v0.6.0

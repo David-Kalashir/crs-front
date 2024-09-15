@@ -18,6 +18,7 @@ import (
 	"github.com/David-Kalashir/crs-front/api/sdk/http/mux"
 	"github.com/David-Kalashir/crs-front/business/sdk/sqldb"
 	"github.com/David-Kalashir/crs-front/foundation/logger"
+	"github.com/David-Kalashir/crs-front/foundation/minio"
 	"github.com/David-Kalashir/crs-front/foundation/otel"
 	"github.com/ardanlabs/conf/v3"
 )
@@ -95,6 +96,12 @@ func run(ctx context.Context, log *logger.Logger) error {
 			// Shouldn't use a high Probability value in non-developer systems.
 			// 0.05 should be enough for most systems. Some might want to have
 			// this even lower.
+		}
+		Minio struct {
+			Endpoint        string `conf:"default:localhost:9000"`
+			AccessKeyID     string `conf:"default:3dbKvkVvuJxkx2xbHtEF"`
+			SecretAccessKey string `conf:"default:eSmLxHOPMXeXxfcMyjp4HBtqJKdqP0z4SQYe2aMz"`
+			UseSSL          bool   `conf:"default:false"`
 		}
 	}{
 		Version: conf.Version{
@@ -183,6 +190,14 @@ func run(ctx context.Context, log *logger.Logger) error {
 	}()
 
 	// -------------------------------------------------------------------------
+	// create minio
+
+	mio, err := minio.New(cfg.Minio.Endpoint, cfg.Minio.AccessKeyID, cfg.Minio.SecretAccessKey, cfg.Minio.UseSSL)
+	if err != nil {
+		return fmt.Errorf("creat minio: %w", err)
+	}
+
+	// -------------------------------------------------------------------------
 	// Start API Service
 
 	log.Info(ctx, "startup", "status", "initializing V1 API support")
@@ -195,6 +210,7 @@ func run(ctx context.Context, log *logger.Logger) error {
 		Log:    log,
 		DB:     db,
 		Tracer: tracer,
+		Minio:  mio,
 	}
 
 	webAPI := mux.WebAPI(cfgMux,

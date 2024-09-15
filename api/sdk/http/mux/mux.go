@@ -13,6 +13,7 @@ import (
 	"github.com/David-Kalashir/crs-front/foundation/logger"
 	"github.com/David-Kalashir/crs-front/foundation/web"
 	"github.com/jmoiron/sqlx"
+	"github.com/minio/minio-go/v7"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -54,6 +55,7 @@ type Config struct {
 	Log    *logger.Logger
 	DB     *sqlx.DB
 	Tracer trace.Tracer
+	Minio  *minio.Client
 	SalesConfig
 	AuthConfig
 }

@@ -3,6 +3,7 @@ package searchpagetempl
 import (
 	"context"
 
+	"github.com/David-Kalashir/crs-front/business/domain/uisearchpagebus"
 	"github.com/David-Kalashir/crs-front/foundation/logger"
 	"github.com/a-h/templ"
 )
@@ -19,8 +20,13 @@ func NewTemplate(log *logger.Logger) *Template {
 	}
 }
 
-func (t *Template) SearchPage(ctx context.Context) templ.Component {
-	s := SearchTempl{}
+func (t *Template) SearchPage(ctx context.Context, navbar uisearchpagebus.Component) templ.Component {
+	s := SearchTempl{
+		Navbar: Component{
+			Component: navbar.Component,
+			ID:        navbar.ID,
+		},
+	}
 	templ := s.Searchpage()
 	return templ
 }

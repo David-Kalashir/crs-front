@@ -1,0 +1,49 @@
+package profiletempl
+
+templ Profile(id string) {
+	<div id={ id } class="flex cursor-pointer relative items-center gap-2">
+		<img src="/assets/public/icons/UpdateMain/user-b.svg" alt=""/>
+		<span>
+			Ayoub Gharibavi
+		</span>
+		<img src="/assets/public/icons/UpdateMain/arrow.svg" alt=""/>
+		<div id="profile" class="absolute hidden text-[#1D1B20]">
+			<div
+				class="flex text-[#1D1B20] flex-col w-60 gap-5 py-5 z-50 h-max  top-5 px-5 absolute bg-white rounded-lg shadow"
+			>
+				<div class="flex border-b pb-2 justify-between">
+					<div class="flex flex-col gap-2">
+						<span class="text-[#605D64]">Wallet </span>
+						<div class="flex items-center gap-3">
+							<span>12,000,000</span>
+							<p class="text-[#605D64]">USD</p>
+						</div>
+					</div>
+					<button>
+						<img src="/assets/public/icons/UpdateMain/add.svg" alt=""/>
+					</button>
+				</div>
+				<div class="flex cursor-pointer items-center gap-4">
+					<img src="/assets/public/icons/UpdateMain/acc.svg" alt=""/>
+					<span>Account</span>
+				</div>
+				<div class="flex cursor-pointer items-center gap-4">
+					<img src="/assets/public/icons/UpdateMain/transaction.svg" alt=""/>
+					<span>Transactions</span>
+				</div>
+				<div class="flex cursor-pointer items-center gap-4">
+					<img src="/assets/public/icons/UpdateMain/ticket.svg" alt=""/>
+					<span>Tickets</span>
+				</div>
+				<div class="flex cursor-pointer items-center gap-4">
+					<img src="/assets/public/icons/UpdateMain/support-2.svg" alt=""/>
+					<span>Support</span>
+				</div>
+				<div class="flex cursor-pointer text-[#EE0035] items-center gap-4">
+					<img src="/assets/public/icons/UpdateMain/logout.svg" alt=""/>
+					<span>Log out</span>
+				</div>
+			</div>
+		</div>
+	</div>
+}

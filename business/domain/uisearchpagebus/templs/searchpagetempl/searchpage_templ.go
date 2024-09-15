@@ -29,7 +29,15 @@ func (s SearchTempl) Searchpage() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\" class=\"h-full\" dir=\"ltr\"><head><meta charset=\"UTF-8\"><title></title><link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/output.css\"><link rel=\"icon\" type=\"image/ico\" href=\"/assets/public/favicon.ico\"><script src=\"https://unpkg.com/htmx.org@2.0.2\" integrity=\"sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ\" crossorigin=\"anonymous\"></script></head><body><p class=\"underline ...\">The quick brown fox ...</p></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\" class=\"h-full\" dir=\"ltr\"><head><meta charset=\"UTF-8\"><title></title><link rel=\"preload\" href=\"/static/css/output.css\" as=\"style\"><link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/output.css\"><link rel=\"icon\" type=\"image/ico\" href=\"/assets/public/favicon.ico\"><script src=\"https://unpkg.com/htmx.org@2.0.2\" integrity=\"sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ\" crossorigin=\"anonymous\"></script></head><body><div id=\"{ s.Navbar.ID }\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = s.Navbar.Component.Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><p class=\"underline text-blue-600\">The quick brown fox ...</p></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

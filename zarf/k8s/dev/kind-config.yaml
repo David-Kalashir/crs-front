@@ -2,6 +2,10 @@ kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
+  extraMounts:
+    - hostPath: /home/javad/data  # Directory on your local machine
+      containerPath: /mnt/data/minio     # Directory in Kind node (same as in your PV)
+
   extraPortMappings:
   # Sales-Api
   - containerPort: 3000

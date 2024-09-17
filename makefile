@@ -119,7 +119,6 @@ TEMPO           := grafana/tempo:2.5.0
 LOKI            := grafana/loki:3.1.0
 PROMTAIL        := grafana/promtail:3.1.0
 MINIO        	:= minio/minio:RELEASE.2024-09-09T16-59-28Z.fips
-RANCHER         := rancher/local-path-provisioner:v0.0.29
 
 KIND_CLUSTER    := ardan-starter-cluster
 NAMESPACE       := sales-system
@@ -164,7 +163,6 @@ dev-docker:
 	docker pull $(LOKI) & \
 	docker pull $(PROMTAIL) & \
 	docker pull $(MINIO) & \
-	docker pull $(RANCHER) & \
 	wait;
 
 # ==============================================================================
@@ -221,7 +219,6 @@ dev-up:
 	kind load docker-image $(LOKI) --name $(KIND_CLUSTER) & \
 	kind load docker-image $(PROMTAIL) --name $(KIND_CLUSTER) & \
 	kind load docker-image $(MINIO) --name $(KIND_CLUSTER) & \
-	kind load docker-image $(RANCHER) --name $(KIND_CLUSTER) & \
 	wait;
 
 dev-down:
@@ -245,7 +242,6 @@ dev-load:
 	wait;
 
 dev-apply:
-	kustomize build zarf/k8s/dev/provisioner | kubectl apply -f -
 	kustomize build zarf/k8s/dev/grafana | kubectl apply -f -
 	kustomize build zarf/k8s/dev/prometheus | kubectl apply -f -
 	kustomize build zarf/k8s/dev/tempo | kubectl apply -f -

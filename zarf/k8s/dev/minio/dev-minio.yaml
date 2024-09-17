@@ -3,15 +3,15 @@ kind: Namespace
 metadata:
   name: sales-system
 ---
+---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: local-storage
-provisioner: kubernetes.io/no-provisioner
+provisioner: rancher.io/local-path
 volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Retain
 ---
-# Persistent Volume Definition
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -20,27 +20,28 @@ metadata:
     app: minio-storage
 spec:
   capacity:
-    storage: 10Gi
+    storage: 1Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
   storageClassName: local-storage
   hostPath:
-    path: "/mnt/data/minio"
+    path: /mnt/data/minio   # Replace with a persistent directory on your host machine
+    type: DirectoryOrCreate
 ---
-# Persistent Volume Claim
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: minio-data
+  name: minio-pvc
   namespace: sales-system
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: local-storage
   resources:
     requests:
-      storage: 10Gi
+      storage: 1Gi
+  storageClassName: local-storage  # Uses the local-storage provisioner
 ---
 # StatefulSet for MinIO
 apiVersion: apps/v1
@@ -66,6 +67,9 @@ spec:
         - name: minio-config
           configMap:
             name: minio-conf
+        - name: minio-storage
+          persistentVolumeClaim:
+            claimName: minio-pvc
       containers:
       - name: minio
         image: minio/minio:RELEASE.2024-09-09T16-59-28Z.fips
@@ -75,11 +79,11 @@ spec:
           - /data
           - --console-address=:9001
         volumeMounts:
-          - name: data
-            mountPath: /data
           - name: minio-config
             readOnly: true
             mountPath: /etc/minio
+          - name: minio-storage
+            mountPath: /data
         envFrom:
           - configMapRef:
               name: minio-conf
@@ -104,16 +108,6 @@ spec:
             - "curl -f http://localhost:9000/minio/health/ready || exit 1"
           initialDelaySeconds: 5
           timeoutSeconds: 1
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes:
-        - ReadWriteOnce
-      storageClassName: local-storage
-      resources:
-        requests:
-          storage: 10Gi
 ---
 # MinIO Service
 apiVersion: v1

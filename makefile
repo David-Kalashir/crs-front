@@ -267,7 +267,7 @@ dev-restart:
 	kubectl rollout restart deployment $(CRSFRONT_APP) --namespace=$(NAMESPACE)
 	kubectl rollout restart deployment $(SALES_APP) --namespace=$(NAMESPACE)
 
-dev-update: build dev-load dev-restart
+dev-update: templ-generate build dev-load dev-restart 
 
 dev-update-apply: build dev-load dev-apply
 
@@ -571,7 +571,14 @@ admin-gui-start-build: admin-gui-build
 admin-gui-run: write-token-to-env admin-gui-start-build
 
 # ==============================================================================
+# templ
+
+templ-generate: 
+	templ generate
+
+# ==============================================================================
 # Help command
+
 help:
 	@echo "Usage: make <command>"
 	@echo ""

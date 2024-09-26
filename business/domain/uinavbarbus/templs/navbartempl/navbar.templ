@@ -1,6 +1,6 @@
 package navbartempl
 
-templ (n NavbarTempl) Navbar(navbarStyl Navbarstyl, id string) {
+templ (n NavbarTempl) Navbar(navbarStyl Navbarstyl, id string, route string,authbtn string, authtarget string ) {
 	<nav id={ id } class={ " mobile:px-10 lg:px-20 py-4 flex justify-between " + navbarStyl.Bg }>
 		<div class="flex items-center gap-10">
 			<img src={ navbarStyl.Logo } class="w-[6.188rem] h-7" alt="logo"/>
@@ -9,6 +9,7 @@ templ (n NavbarTempl) Navbar(navbarStyl Navbarstyl, id string) {
 				<a href="#">Support</a>
 				<a href="#">About us</a>
 				<a href="#">Connect us</a>
+				<a href="#" hx-get={route} hx-swap="innerHTML" hx-target={authtarget}>{authbtn}</a>
 			</div>
 		</div>
 		<div class="flex items-center gap-3 mobile:hidden">

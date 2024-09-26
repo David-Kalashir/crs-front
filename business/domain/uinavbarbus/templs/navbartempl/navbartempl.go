@@ -20,7 +20,7 @@ func NewTemplate(log *logger.Logger) *Template {
 	}
 }
 
-func (t *Template) Navbar(ctx context.Context, navbarstyl uinavbarbus.Navbarstyl, c uinavbarbus.NavbarComponent, id string) templ.Component {
+func (t *Template) Navbar(ctx context.Context, navbarstyl uinavbarbus.Navbarstyl, c uinavbarbus.NavbarComponent, id string, route string, authbtn string, authtarget string) templ.Component {
 	s := NavbarTempl{
 		Profile: Component{
 			Componenet: c.Profile.Component,
@@ -30,6 +30,6 @@ func (t *Template) Navbar(ctx context.Context, navbarstyl uinavbarbus.Navbarstyl
 	templ := s.Navbar(Navbarstyl{
 		Bg:   navbarstyl.Background,
 		Logo: navbarstyl.Background,
-	}, id)
+	}, id, route, authbtn, authtarget)
 	return templ
 }

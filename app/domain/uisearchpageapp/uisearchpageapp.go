@@ -5,6 +5,7 @@ import (
 
 	"github.com/David-Kalashir/crs-front/business/domain/uisearchpagebus"
 	"github.com/a-h/templ"
+	"github.com/google/uuid"
 )
 
 // App manages the set of app layer api functions for the user domain.
@@ -21,7 +22,24 @@ func NewApp(uisearchpagebus *uisearchpagebus.Business) *App {
 
 // Create adds a new user to the system.
 func (a *App) SearchPage(ctx context.Context) (templ.Component, error) {
-	com, err := a.uisearchpagebus.SearchPage(ctx)
+	com, err := a.uisearchpagebus.SearchPage(ctx, uuid.UUID{})
+	if err != nil {
+		return nil, err
+	}
+	return com, nil
+}
+
+func (a *App) Login(ctx context.Context) (templ.Component, error) {
+	com, err := a.uisearchpagebus.Login(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return com, nil
+}
+
+
+func (a *App) Logout(ctx context.Context) (templ.Component, error) {
+	com, err := a.uisearchpagebus.SearchPage(ctx, uuid.UUID{})
 	if err != nil {
 		return nil, err
 	}

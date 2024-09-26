@@ -3,8 +3,10 @@ package uisearchpagebus
 import (
 	"context"
 
+	"github.com/David-Kalashir/crs-front/business/domain/uiloginbus"
 	"github.com/David-Kalashir/crs-front/business/domain/uinavbarbus"
 	"github.com/a-h/templ"
+	"github.com/google/uuid"
 )
 
 // Storer interface declares the behavior this package needs to persist and
@@ -17,19 +19,21 @@ type Templer interface {
 type Business struct {
 	templer     Templer
 	uinavbarbus *uinavbarbus.Business
+	uiloginbus  *uiloginbus.Business
 }
 
 // NewBusiness constructs a vproduct business API for use.
-func NewBusiness(templer Templer, uinavbarbus *uinavbarbus.Business) *Business {
+func NewBusiness(templer Templer, uinavbarbus *uinavbarbus.Business, uiloginbus *uiloginbus.Business) *Business {
 	return &Business{
 		templer:     templer,
 		uinavbarbus: uinavbarbus,
+		uiloginbus:  uiloginbus,
 	}
 }
 
 // SearchPage .
-func (b *Business) SearchPage(ctx context.Context) (templ.Component, error) {
-	navabr, err := b.uinavbarbus.Navbar(ctx)
+func (b *Business) SearchPage(ctx context.Context, uuid uuid.UUID,) (templ.Component, error) {
+	navabr, err := b.uinavbarbus.Navbar(ctx, "/v1/searchpage/login", "/v1/searchpage/logout",uuid, "#Login","body")
 	if err != nil {
 		return nil, err
 	}
@@ -39,4 +43,13 @@ func (b *Business) SearchPage(ctx context.Context) (templ.Component, error) {
 	})
 
 	return com, nil
+}
+
+func (b *Business) Login(ctx context.Context) (templ.Component, error) {
+	login, err := b.uiloginbus.Login(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return login, nil
 }

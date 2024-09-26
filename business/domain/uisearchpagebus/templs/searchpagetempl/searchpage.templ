@@ -6,7 +6,6 @@ templ (s SearchTempl) Searchpage() {
 		<head>
 			<meta charset="UTF-8"/>
 			<title></title>
-			<link rel="preload" href="/static/css/output.css" as="style"/>
 			<link rel="stylesheet" type="text/css" href="/static/css/output.css"/>
 			<link rel="icon" type="image/ico" href="/assets/public/favicon.ico"/>
 			<script src="https://unpkg.com/htmx.org@2.0.2" integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ" crossorigin="anonymous"></script>
@@ -16,6 +15,7 @@ templ (s SearchTempl) Searchpage() {
 				@s.Navbar.Component
 			</div>
 			<p class="underline text-blue-600">The quick brown fox ...</p>
+			<div id="login" ></div>
 		</body>
 	</html>
 }

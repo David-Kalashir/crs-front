@@ -21,5 +21,7 @@ func Routes(app *web.App, cfg Config) {
 
 	api := newAPI(uisearchpageapp.NewApp(cfg.UIsearchpagebus))
 	app.RawHandlerFunc(http.MethodGet, version, "/searchpage", api.searchpage)
+	app.RawHandlerFunc(http.MethodGet, version, "/searchpage/login", api.login)
+	app.RawHandlerFunc(http.MethodGet, version, "/searchpage/logout", api.logout)
 
 }

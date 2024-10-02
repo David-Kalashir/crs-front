@@ -61,7 +61,7 @@ func (b *Business) Navbar(ctx context.Context, loginroute, logoutroute string, u
 				Component: p,
 				ID:        "profile-navbar",
 			},
-		}, "", loginroute, "logout", logouttarget)
+		}, "", loginroute, "login", logouttarget)
 	}
 
 	return com, nil

@@ -50,7 +50,7 @@ func (b *Business) Navbar(ctx context.Context, loginroute, logoutroute string, u
 				Component: p,
 				ID:        "profile-navbar",
 			},
-		}, "", logoutroute, "logout", logintarget)
+		}, "", logoutroute, "logout", logouttarget)
 	}
 	if !auth {
 		com = b.navbartempler.Navbar(ctx, Navbarstyl{
@@ -61,7 +61,7 @@ func (b *Business) Navbar(ctx context.Context, loginroute, logoutroute string, u
 				Component: p,
 				ID:        "profile-navbar",
 			},
-		}, "", loginroute, "login", logouttarget)
+		}, "", loginroute, "login", logintarget)
 	}
 
 	return com, nil

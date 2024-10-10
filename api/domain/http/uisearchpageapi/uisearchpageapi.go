@@ -5,15 +5,24 @@ import (
 	"net/http"
 
 	"github.com/David-Kalashir/crs-front/app/domain/uisearchpageapp"
+	"github.com/gorilla/sessions"
 )
 
 type api struct {
 	uisearchpageapp *uisearchpageapp.App
+	store           sessions.Store
 }
 
-func newAPI(uisearchpageapp *uisearchpageapp.App) *api {
+func newAPI(cfg Config) *api {
+
+	store := sessions.NewCookieStore([]byte(cfg.StoreKey))
+	store.Options = &sessions.Options{
+		Path: "/",
+	}
+	uisearchpageapp := uisearchpageapp.NewApp(cfg.UIsearchpagebus)
 	return &api{
 		uisearchpageapp: uisearchpageapp,
+		store:           store,
 	}
 }
 

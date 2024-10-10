@@ -42,6 +42,7 @@ func (add) Add(app *web.App, cfg mux.Config) {
 	uisearchpageapi.Routes(app, uisearchpageapi.Config{
 		Log:             cfg.Log,
 		UIsearchpagebus: uisearchpagebus,
+		StoreKey:        cfg.StoreKey,
 	})
 
 	checkapi.Routes(app, checkapi.Config{

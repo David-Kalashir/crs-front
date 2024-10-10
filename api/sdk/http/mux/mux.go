@@ -51,11 +51,12 @@ type AuthConfig struct {
 
 // Config contains all the mandatory systems required by handlers.
 type Config struct {
-	Build  string
-	Log    *logger.Logger
-	DB     *sqlx.DB
-	Tracer trace.Tracer
-	Minio  *minio.Client
+	Build    string
+	Log      *logger.Logger
+	DB       *sqlx.DB
+	Tracer   trace.Tracer
+	Minio    *minio.Client
+	StoreKey string
 	SalesConfig
 	AuthConfig
 }

@@ -103,6 +103,9 @@ func run(ctx context.Context, log *logger.Logger) error {
 			SecretAccessKey string `conf:"default:eSmLxHOPMXeXxfcMyjp4HBtqJKdqP0z4SQYe2aMz"`
 			UseSSL          bool   `conf:"default:false"`
 		}
+		Store struct {
+			Key string `conf:"default:eSmLxHOPMXeXxfcMyjp4HBtqJKdqP0z4SQYe2aMz,mask"`
+		}
 	}{
 		Version: conf.Version{
 			Build: build,
@@ -206,11 +209,12 @@ func run(ctx context.Context, log *logger.Logger) error {
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
 
 	cfgMux := mux.Config{
-		Build:  build,
-		Log:    log,
-		DB:     db,
-		Tracer: tracer,
-		Minio:  mio,
+		Build:    build,
+		Log:      log,
+		DB:       db,
+		Tracer:   tracer,
+		Minio:    mio,
+		StoreKey: cfg.Store.Key,
 	}
 
 	webAPI := mux.WebAPI(cfgMux,

@@ -37,7 +37,7 @@ func NewBusiness(navbartempler NavbarTempler, profiletempler ProfileTempler, aut
 // SearchPage .
 func (b *Business) Navbar(ctx context.Context, loginroute, logoutroute string, uuid uuid.UUID, logintarget string, logouttarget string) (templ.Component, error) {
 	p := b.profiletempler.Profile(ctx, "profile")
-	auth := b.authbus.IsAuth(uuid)
+	auth := false //b.authbus.IsAuth(uuid)
 
 	var com templ.Component
 

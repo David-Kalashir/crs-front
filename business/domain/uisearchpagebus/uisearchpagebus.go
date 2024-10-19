@@ -32,8 +32,8 @@ func NewBusiness(templer Templer, uinavbarbus *uinavbarbus.Business, uiloginbus 
 }
 
 // SearchPage .
-func (b *Business) SearchPage(ctx context.Context, uuid uuid.UUID,) (templ.Component, error) {
-	navabr, err := b.uinavbarbus.Navbar(ctx, "/v1/searchpage/login", "/v1/searchpage/logout",uuid, "#Login","body")
+func (b *Business) SearchPage(ctx context.Context, uuid uuid.UUID) (templ.Component, error) {
+	navabr, err := b.uinavbarbus.Navbar(ctx, "/v1/searchpage/login", "/v1/searchpage/logout", uuid, "#login", "body")
 	if err != nil {
 		return nil, err
 	}
